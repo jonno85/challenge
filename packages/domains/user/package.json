@@ -4,7 +4,10 @@
   "description": "User domain logic",
   "private": true,
   "dependencies": {
-      "@nc/utils": "^0.0.0",
-      "express": "^4.17.0"
+    "@nc/domain-user": "^0.0.0",
+    "@nc/utils": "^0.0.0",
+    "@nc/package": "^0.0.0",
+    "express": "^4.17.0",
+    "knex": "^1.0.5"
   }
 }

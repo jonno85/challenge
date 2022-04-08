@@ -1,23 +1,28 @@
 import { format } from './formatter';
-import { readUser } from './data/db-user';
-import { to } from '@nc/utils/async';
 import { User } from './types';
+import { UserRepository } from './data/db-user';
 import { BadRequest, InternalError, NotFound } from '@nc/utils/errors';
 
-export async function getUserDetails(userId): Promise<User> {
-  if (!userId) {
-    throw BadRequest('userId property is missing.');
-  }
+export const buildGetUserDetails = (dependencies: { userRepository: UserRepository }) => {
+  const { userRepository } = dependencies;
 
-  const [dbError, rawUser] = await to(readUser(userId));
+  return async function getUserDetails(userId): Promise<User> {
+    if (!userId) {
+      throw BadRequest('userId property is missing.');
+    }
 
-  if (dbError) {
-    throw InternalError(`Error fetching data from the DB: ${dbError.message}`);
-  }
+    const rawUserResponse = await userRepository.readUser(userId);
 
-  if (!rawUser) {
-    throw NotFound(`Could not find user with id ${userId}`);
-  }
+    if (rawUserResponse.outcome === 'FAILURE') {
+      if (rawUserResponse.error.errorCode === 'USER_ID_NOT_FOUND') {
+        throw NotFound(`Could not find user expenses with id ${userId}`);
+      }
+      if (rawUserResponse.error.errorCode === 'DATABASE_ERROR') {
+        throw InternalError(`Error fetching data from the DB: ${rawUserResponse.error.message}`);
+      }
+      throw InternalError('Unrecognized error');
+    }
 
-  return format(rawUser);
-}
+    return format(rawUserResponse.data.user);
+  };
+};

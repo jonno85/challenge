@@ -1,22 +1,22 @@
-import { User } from './types';
+import { capitalize } from '@nc/utils/capitalize';
+import { User, UserTrim } from './types';
 
-const publicFields = ['first_name', 'last_name', 'company_name'];
+const trimmer = (user: User): UserTrim => ({
+  firstName: user.firstName,
+  lastName: user.lastName,
+  companyName: user.companyName,
+});
 
-export function capitalize(word) {
-  const str = `${word}`;
-  return str[0].toUpperCase() + str.slice(1);
+export function secureTrim(user: User): UserTrim {
+  return trimmer(user);
 }
 
-export function secureTrim(user: User): string {
-  return JSON.stringify(user, publicFields);
-}
-
-export function format(rawUser): User {
+export function format(rawUser: User): User {
   return {
     id: rawUser.id,
-    first_name: capitalize(rawUser.first_name),
-    last_name: capitalize(rawUser.last_name),
-    company_name: rawUser.company_name,
+    firstName: capitalize(rawUser.firstName),
+    lastName: capitalize(rawUser.lastName),
+    companyName: rawUser.companyName,
     ssn: rawUser.ssn,
   };
 }
