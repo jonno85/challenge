@@ -15,20 +15,16 @@ module.exports = {
       statements: 50,
     },
   },
+  collectCoverage: true,
   globals: {
     'ts-jest': {
       diagnostics: false,
       isolatedModules: true,
-      tsConfig: '<rootDir>/tsconfig.json',
+      tsconfig: '<rootDir>/tsconfig.json',
     },
   },
-  modulePathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-  ],
+  modulePathIgnorePatterns: ['<rootDir>/node_modules/'],
   preset: 'ts-jest',
-  setupFilesAfterEnv: [
-    '<rootDir>/test/utils/jest/config-injector.ts',
-    '<rootDir>/test/utils/jest/error-matchers.ts',
-  ],
+  setupFilesAfterEnv: ['<rootDir>/test/utils/jest/config-injector.ts', '<rootDir>/test/utils/jest/error-matchers.ts'],
   testEnvironment: 'node',
 };

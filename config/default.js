@@ -6,6 +6,8 @@ module.exports = {
     host: '0.0.0.0',
     port: 5432,
     database: 'challenge',
+    user: 'local',
+    password: 'local',
   },
   debug: {
     stackSize: 4,
@@ -21,5 +23,8 @@ module.exports = {
   shutdown: {
     appKill: 1000,
     serverClose: 100,
+  },
+  knex: {
+    migrationExtension: ['.ts'],
   },
 };
