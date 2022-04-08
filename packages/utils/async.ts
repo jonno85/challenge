@@ -1,3 +1,5 @@
+import { PagedResult } from './pagination';
+
 export function mute(resolver: (args: any) => any, params: any[]): Promise<void> {
   const handle = Promise.resolve();
   process.nextTick(() => resolver(params).catch((): void => undefined));
@@ -16,9 +18,11 @@ export function deferred<T>() {
 }
 
 export function to<T = any>(promise: Promise<T>): Promise<[null, T] | [any, null?]> {
-  return promise
-    .then((data) => [null, data] as [null, T])
-    .catch((err) => [err] as [any]);
+  return promise.then((data) => [null, data] as [null, T]).catch((err) => [err] as [any]);
+}
+
+export function toPaginated<T = any>(promise: Promise<PagedResult<T>>): Promise<[null, PagedResult<T>] | [any, null?]> {
+  return promise.then((data) => [null, data] as [null, PagedResult<T>]).catch((err) => [err] as [any]);
 }
 
 export function sequence<T, K>(array: Array<K>, operation: (item: K, index: number) => Promise<T>): Promise<Array<T>> {

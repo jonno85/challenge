@@ -1,4 +1,5 @@
-import { deferred, sequence, to } from '../async';
+import { PagedResult } from '@nc';
+import { deferred, sequence, to, toPaginated } from '../async';
 
 describe('[Packages | Core-util | Async] to', () => {
   test('to should handle resolving promises', () => {
@@ -10,6 +11,43 @@ describe('[Packages | Core-util | Async] to', () => {
     return expect(to(Promise.resolve('1'))).resolves.toEqual([null, '1']);
   });
 
+  test('toPaginated should handle resolving promises with a response array', () => {
+    expect.assertions(1);
+
+    const dataIn: PagedResult<string> = {
+      data: ['1'],
+      paginate: {
+        pagination: {
+          page: 1,
+          offset: 0,
+          pageSize: 0,
+        },
+        filters: {},
+        sort: {},
+      },
+    };
+    return expect(toPaginated(Promise.resolve(dataIn))).resolves.toEqual([
+      null,
+      {
+        data: ['1'],
+        paginate: {
+          filters: {},
+          pagination: {
+            offset: 0,
+            page: 1,
+            pageSize: 0,
+          },
+          sort: {},
+        },
+      },
+    ]);
+  });
+  test('toPaginated should handle rejecting promises with a response array', () => {
+    expect.assertions(1);
+    const err = new Error('_error_');
+    return expect(toPaginated(Promise.reject(err))).resolves.toEqual([err]);
+  });
+
   test('to should handle rejecting promises with a response array', () => {
     expect.assertions(1);
     const err = new Error('2');
@@ -19,9 +57,9 @@ describe('[Packages | Core-util | Async] to', () => {
   test('to should handle exceptions with a response array', () => {
     expect.assertions(1);
     const foo = () => {
-      return (new Promise(() => {
+      return new Promise(() => {
         throw new Error('abc');
-      }));
+      });
     };
     return expect(to(foo())).resolves.toEqual([new Error('abc')]);
   });
@@ -56,7 +94,6 @@ describe('[Packages | Core-util | Async] sequence', () => {
     const list = Array.from(new Array(5)).map((_, index) => index);
     const asyncFunction = jest.fn((item) => Promise.resolve(item));
 
-    expect(sequence(list, (item) => asyncFunction(item)))
-      .resolves.toStrictEqual([0, 1, 2, 3, 4]);
+    expect(sequence(list, (item) => asyncFunction(item))).resolves.toStrictEqual([0, 1, 2, 3, 4]);
   });
 });

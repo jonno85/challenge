@@ -8,7 +8,7 @@ This challenge has been designed to measure your knowledge of Node.js, Express, 
 
 Your objective is to write this new route to fetch the list of expenses for a given user. Right now that domain is empty, so you'll have to build everything from scratch- but you can look over at the user domain for inspiration. Please make sure that the endpoint scales adequately and supports paging, sorting and filtering. Additionally, we would also like you to write some tests for your route.
 
-Finally, as a bonus objective, try to improve any aspect of this API. It could be to add more TS types, better security, tests, add features, graphql support, etc. 
+Finally, as a bonus objective, try to improve any aspect of this API. It could be to add more TS types, better security, tests, add features, graphql support, etc.
 
 ## Instructions
 
@@ -48,11 +48,40 @@ yarn test
 
 The command above will run the following test suites sequentially:
 
-| Test suite | Run command | Description |
--------------|-------------|-------------|
-| Unit | `yarn test:unit` | Simple unit tests. |
-| Mid-level | `yarn test:mid-level` | Small integration tests that integration of small components together.  |
-| Acceptances | `yarn test:acceptance` | Large integration tests, system tests, end-to-end tests. |
-
+| Test suite  | Run command            | Description                                                            |
+| ----------- | ---------------------- | ---------------------------------------------------------------------- |
+| Unit        | `yarn test:unit`       | Simple unit tests.                                                     |
+| Mid-level   | `yarn test:mid-level`  | Small integration tests that integration of small components together. |
+| Acceptances | `yarn test:acceptance` | Large integration tests, system tests, end-to-end tests.               |
 
 Happy hacking 😁!
+
+
+## What has been achieved
+
+Switched the db library to `Knex` which includes capabilities like:
+- migration file
+- automatic parameters escaping
+- connection pool to re-use db connections.
+
+I then removed the previous db utils files.
+
+to run the db migration, `test` and `challenge` DBs must be created upfront. 
+```
+NODE_ENV=qa yarn migrate:latest
+```
+
+I changed the return types to not stringyfied to better readability, also the db properties name are translated to/from json properties (snake case to camel case).
+In the repository classes I used the outcome pattern to manage successfull/failure condition.
+All the types passed at any level have been declared.
+ 
+I wrote acceptance tests with automatic db migration cleanup and server startup.
+The code instatiation has been reworked to have IoC, and pass the Dependency, now there is the `app.ts` file which creates the service and the `server` file which bootstrap the application. This helped the acceptance test execution and the increase of the testing coverage in general.
+
+For the pagination, sort and filter task I created a unique middleware which parses the input query string parameters, creates an equivalent object to pass over into the request.
+
+Those properties are then mapped into the db query string to return the proper filtered/sorted/paginated set. I had to execute a second query to obtain the totalCount value which indicates how many elements in total were found. I tried to use the postgres technique `COUNT(*) OVER () AS total_count` to return the total in the same query without success :(
+
+I have also added the helper function `toPaginated` to extract data and pagination structure into the returned response.
+
+The initial path `GET /get-user-details` has been renamed to a more consistent `GET /user-details`.
